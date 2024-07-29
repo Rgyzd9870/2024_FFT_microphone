@@ -3,7 +3,7 @@
 ..\obj\dac.o: ..\SYSTEM\sys\sys.h
 ..\obj\dac.o: ..\USER\stm32f4xx.h
 ..\obj\dac.o: ..\CORE\core_cm4.h
-..\obj\dac.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+..\obj\dac.o: E:\keil\ARM\ARMCC\Bin\..\include\stdint.h
 ..\obj\dac.o: ..\DSP_LIB\Include\core_cmInstr.h
 ..\obj\dac.o: ..\DSP_LIB\Include\core_cmFunc.h
 ..\obj\dac.o: ..\CORE\core_cm4_simd.h
@@ -36,4 +36,4 @@
 ..\obj\dac.o: ..\FWLIB\inc\stm32f4xx_dac.h
 ..\obj\dac.o: ..\FWLIB\inc\stm32f4xx_dcmi.h
 ..\obj\dac.o: ..\FWLIB\inc\stm32f4xx_fsmc.h
-..\obj\dac.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\math.h
+..\obj\dac.o: E:\keil\ARM\ARMCC\Bin\..\include\math.h
