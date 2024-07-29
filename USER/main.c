@@ -11,6 +11,7 @@
 #include "dac.h"
 //作者：mlhy
 #define xiangweizhi 0               //注释锁
+#define test1       1               //任务一锁
 
 #define FFT_LENGTH		1024 		//FFT长度，默认是1024点FFT
 #define RESOLUTION 2048
@@ -66,11 +67,12 @@ int main(void)
 	arm_cfft_radix4_init_f32(&scfft,FFT_LENGTH,0,1);//初始化scfft结构体，设定FFT相关参数
  	while(1)
 	{
-			key=KEY_Scan(0);
-//			if(key==WKUP_PRES)
-//			show_flag=~show_flag;
-//			if(key==KEY0_PRES)
-//			{	
+			key=KEY_Scan(1);
+			if(key==WKUP_PRES)
+			printf("WKUP_PRES");
+			if(key == KEY0_PRES)
+			{	
+            
 			Collect_ADC_LEVEL(fft_inputbuf);
 			//if(show_flag==1)
 			DrawOscillogram(fft_inputbuf);//画波形
@@ -78,11 +80,11 @@ int main(void)
 			Add_Kwindow(fft_inputbuf);
 			arm_cfft_radix4_f32(&scfft,fft_inputbuf);	//FFT计算（基4）
 			arm_cmplx_mag_f32(fft_inputbuf,fft_outputbuf,FFT_LENGTH);	//把运算结果复数求模得幅值 
-			#if 1
-//            for(i=0;i<FFT_LENGTH;i++)                                   //验证幅值
-//			{
-//				printf("output:%.2f,%.2f\n",fft_inputbuf[2*i],fft_outputbuf[i]);
-//			} 
+			#if 0
+            for(i=0;i<FFT_LENGTH;i++)                                   //验证幅值
+			{
+				printf("output:%.2f,%.2f\n",fft_inputbuf[2*i],fft_outputbuf[i]);
+			} 
             #endif
 			freq=get_freq(fft_outputbuf);
             #if xiangweizhi //测试别项相位值（2）
@@ -105,15 +107,23 @@ int main(void)
 			BACK_COLOR = DARKBLUE;
 			sprintf((char*)Freq_buff,"Fs = %dHz",freq);
 			LCD_ShowString(60,10,210,24,24,Freq_buff);
-            printf("Freq_buff:%d\n",freq);
+            #if test1                   //任务一
+            if(freq > 100)
+            {
+
+               LED0 = 0;
+            }
+            else LED0 = 1;
+            #endif
+//            printf("Freq_buff:%d\n",freq);
             
 			sprintf((char*)Vpp_buff,"VPP = %0.2fV",Adresult);		
 			LCD_ShowString(60,40,210,24,24,Vpp_buff);
             sprintf((char*)Vpp_buff,"arg = %d",arg);		
 			LCD_ShowString(60,70,210,24,24,Vpp_buff);
-//		}else delay_ms(10);
-//		t++;
-//		if((t%10)==0)LED0=!LED0;	
+		}else delay_ms(10);
+		t++;
+		if((t%10)==0)LED0=!LED0;	
 	}
 }
 
