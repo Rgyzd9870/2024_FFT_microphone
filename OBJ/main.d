@@ -49,3 +49,5 @@
 ..\obj\main.o: E:\keil\ARM\ARMCC\Bin\..\include\string.h
 ..\obj\main.o: ..\HARDWARE\ADC\adc.h
 ..\obj\main.o: ..\HARDWARE\DAC\dac.h
+..\obj\main.o: E:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+..\obj\main.o: ..\HARDWARE\AD9833\AD9833.h

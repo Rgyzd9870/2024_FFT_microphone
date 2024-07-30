@@ -1,213 +1,254 @@
-
-#include "ad9833.h"
-
-
-
-
+#include "AD9833.h"
+#include "delay.h"
 //***************************
 //		Pin assign	   	
 //			STM32			AD9833
-//		GPIOB_Pin_15 		---> FSYNC
-//		GPIOB_Pin_14 		---> SCK
-//		GPIOB_Pin_13 		---> DAT
-//		GPIOB_Pin_12		---> CS
+//		GPIOB_Pin_9 		---> FSYNC
+//		GPIOB_Pin_3 		---> SCK
+//		GPIOB_Pin_5 		---> DAT
+
 //***************************	
 
-	/*¶Ë¿Ú¶¨Òå */ 
+	/*ç«¯å£å®šä¹‰ */ 
 	#define PORT_FSYNC	GPIOB
-	#define PIN_FSYNC	GPIO_Pin_15
+	#define PIN_FSYNC		GPIO_Pin_9
 
-	#define PORT_SCK	GPIOB
-	#define PIN_SCK		GPIO_Pin_14
+	#define PORT_SCK		GPIOB
+	#define PIN_SCK			GPIO_Pin_3
 
-	#define PORT_DAT	GPIOB
-	#define PIN_DAT		GPIO_Pin_13
+	#define PORT_DATA		GPIOB
+	#define PIN_DATA		GPIO_Pin_5
+	#define PI 3.14159265358979323846
 
-	#define PORT_CS		GPIOB
-	#define PIN_CS		GPIO_Pin_12  //Êı×ÖµçÎ»Æ÷Æ¬Ñ¡
-
-//****************************************************************
-
-	#define FSYNC_0()		GPIO_ResetBits(PORT_FSYNC, PIN_FSYNC)
-	#define FSYNC_1()		GPIO_SetBits(PORT_FSYNC, PIN_FSYNC)
-
-	#define SCK_0()		    GPIO_ResetBits(PORT_SCK, PIN_SCK)
-	#define SCK_1()		    GPIO_SetBits(PORT_SCK, PIN_SCK)
-
-	#define DAT_0()		    GPIO_ResetBits(PORT_DAT, PIN_DAT)
-	#define DAT_1()		    GPIO_SetBits(PORT_DAT, PIN_DAT)	
-
-	#define CS_0()		    GPIO_ResetBits(PORT_DAT, PIN_CS)	
-	#define CS_1()		    GPIO_SetBits(PORT_DAT, PIN_CS)	
-
-//³õÊ¼»¯AD9833 GPIO
-
-void AD9833_Init_GPIO()
+/**************************************
+*   å‡½ æ•° å: ad9833_init
+*   åŠŸèƒ½è¯´æ˜: ad9833åˆå§‹åŒ–
+*   å½¢    å‚: æ— 
+*   è¿” å› å€¼: æ— 
+*************************************/
+void AD9833_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStructure;
+		GPIO_InitTypeDef GPIO_InitStructure;
 
-RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);//Ê¹ÄÜGPIOBÊ±ÖÓ
-	GPIO_InitStructure.GPIO_Pin = PIN_FSYNC|PIN_SCK|PIN_DAT|PIN_CS; 
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP ;//ÉÏÀ­
-    GPIO_Init(PORT_SCK, &GPIO_InitStructure);
+		RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
 
-
-
+		GPIO_InitStructure.GPIO_Pin = PIN_FSYNC|PIN_SCK|PIN_DATA; 
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;//æ™®é€šè¾“å‡ºæ¨¡å¼
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;//æ¨æŒ½è¾“å‡º
+    GPIO_Init(GPIOB, &GPIO_InitStructure);
 }
-
-
-
-/*
-*********************************************************************************************************
-*	º¯ Êı Ãû: AD9833_Delay
-*	¹¦ÄÜËµÃ÷: Ê±ÖÓÑÓÊ±
-*	ĞÎ    ²Î: ÎŞ
-*	·µ »Ø Öµ: ÎŞ
-*********************************************************************************************************
-*/
-static void AD9833_Delay(void)
+/**************************************
+*   å‡½ æ•° å: AD9833_Delay
+*   åŠŸèƒ½è¯´æ˜: ad9833å»¶è¿Ÿ
+*   å½¢    å‚: æ— 
+*   è¿” å› å€¼: æ— 
+*************************************/
+void AD9833_Delay(void)
 {
-	uint16_t i;
-	for (i = 0; i < 1; i++);
+    uint16_t i;
+    for (i = 0; i < 1; i++);
 }
-
-
-
-/*
-*********************************************************************************************************
-*	º¯ Êı Ãû: AD9833_Write
-*	¹¦ÄÜËµÃ÷: ÏòSPI×ÜÏß·¢ËÍ16¸öbitÊı¾İ
-*	ĞÎ    ²Î: TxData : Êı¾İ
-*	·µ »Ø Öµ: ÎŞ
-*********************************************************************************************************
-*/
-void AD9833_Write(unsigned int TxData)
+/**************************************
+*   å‡½ æ•° å: ad9833_write_data
+*   åŠŸèƒ½è¯´æ˜: ad9833å†™å…¥16ä½æ•°æ®
+*   å½¢    å‚: txdataï¼šå¾…å†™å…¥çš„16ä½æ•°æ®
+*   è¿” å› å€¼: æ— 
+*************************************/
+void AD9833_Write(u16 txdata)
 {
-	unsigned char i;
+    int i;
+    AD9833_SCLK=1;
+		AD9833_FSYNC=1;//SCK-FSYNCå»ºç«‹æ—¶é—´æœ€å°ä¸º5ns
+    AD9833_FSYNC=0;//ä¼ è¾“å¼€å§‹
+    //å†™16ä½æ•°æ®
+    for(i=0;i<16;i++)
+    {
+        if (txdata & 0x8000)
+				{AD9833_SDATA=1;}
+        else
+				{AD9833_SDATA=0;}
+//        AD9833_Delay();//æ•°æ®ä¿æŒæ—¶é—´3ns
+        AD9833_SCLK=0;//æ—¶é’Ÿå‘¨æœŸæœ€å°25nsï¼Œä½ç”µå¹³å’Œé«˜ç”µå¹³è‡³å°‘å„æŒç»­10ns
+//        AD9833_Delay();
+        AD9833_SCLK=1;
+        txdata<<=1;
+    }
+    AD9833_FSYNC=1;//è½¬æ¢ç»“æŸ
+}
+/**************************************
+*   å‡½ æ•° å: AD9833_SetFrequency
+*   åŠŸèƒ½è¯´æ˜: ad9833è®¾ç½®é¢‘ç‡å¯„å­˜å™¨
+*   å½¢    å‚: regï¼šå¾…å†™å…¥çš„é¢‘ç‡å¯„å­˜å™¨ 0-0x4000,1-0x8000
+              Freqï¼šé¢‘ç‡å€¼
+*   è¿” å› å€¼: æ— 
+é€‰æ‹©é¢‘ç‡å¯„å­˜å™¨å¹¶å†™å¥½é¢‘ç‡
+*************************************/
+void AD9833_SetFrequency(uint16_t Freq_SFR, double Freq)
+{
+	uint16_t frequence_LSB,frequence_MSB;
+	double   frequence_mid,frequence_DATA;
+	uint32_t frequence_hex;
+/*********************************è®¡ç®—é¢‘ç‡çš„16è¿›åˆ¶å€¼***********************************/
+	frequence_mid=268435456/25000000;//é€‚åˆ25Mæ™¶æŒ¯ï¼Œ
+	//å¦‚æœæ—¶é’Ÿé¢‘ç‡ä¸ä¸º25MHZï¼Œä¿®æ”¹è¯¥å¤„çš„é¢‘ç‡å€¼ï¼Œå•ä½MHz ï¼ŒAD9833æœ€å¤§æ”¯æŒ25MHz
+	frequence_DATA=Freq;
+	frequence_DATA=frequence_DATA*frequence_mid;
+//	frequence_hex=frequence_DATA;
+	frequence_hex=(uint32_t)(frequence_DATA)+(uint32_t)(4430*frequence_mid);  //è¿™ä¸ªfrequence_hexçš„å€¼æ˜¯32ä½çš„ä¸€ä¸ªå¾ˆå¤§çš„æ•°å­—ï¼Œéœ€è¦æ‹†åˆ†æˆä¸¤ä¸ª14ä½è¿›è¡Œå¤„ç†ï¼›
+	//+(uint32_t)(4430*frequence_mid)ï¼Œä¸ºæˆ‘æ ¹æ®å®é™…æƒ…å†µè°ƒæ•´å‚æ•°ï¼Œç›¸å½“äºä½¿è¾“å…¥çš„freq+4430Hzï¼Œå¯ä»¥ä¸åŠ ã€‚æˆ–è€…freq/0.9ï¼Œæœ€ç»ˆè¾“å‡ºä¸å¸Œæœ›å¾—åˆ°çš„å€¼ç›¸ä¼¼
+	//ä»æœ‰å°‘è®¸åå·®ï¼Œä½¿ç”¨è€…è¿˜å¯ä»¥ç»§ç»­å¾®è°ƒå‚æ•°ã€‚
+	frequence_LSB=frequence_hex&0xffff; //frequence_hexä½16ä½é€ç»™frequence_LSB
+	frequence_LSB=frequence_LSB&0x3fff;//å»é™¤æœ€é«˜ä¸¤ä½ï¼Œ16ä½æ•°æ¢å»æ‰é«˜ä½åå˜æˆäº†14ä½
+	frequence_MSB=(frequence_hex>>14)&0xffff; //frequence_hexé«˜16ä½é€ç»™frequence_HSB
+	frequence_MSB=frequence_MSB&0x3fff;//å»é™¤æœ€é«˜ä¸¤ä½ï¼Œ16ä½æ•°æ¢å»æ‰é«˜ä½åå˜æˆäº†14ä½
 
-	SCK_1();
-	//AD9833_Delay();
-	FSYNC_1();
-	//AD9833_Delay();
-	FSYNC_0();
-	//AD9833_Delay();
-	for(i = 0; i < 16; i++)
+	if(Freq_SFR==0)				  //æŠŠæ•°æ®è®¾ç½®åˆ°è®¾ç½®é¢‘ç‡å¯„å­˜å™¨0
 	{
-		if (TxData & 0x8000)
-			DAT_1();
-		else
-			DAT_0();
-		
-		AD9833_Delay();
-		SCK_0();
-		AD9833_Delay();		
-		SCK_1();
-		
-		TxData <<= 1;
-	}
-	FSYNC_1();
-	
-} 
-
-/*
-*********************************************************************************************************
-*	º¯ Êı Ãû: AD9833_AmpSet
-*	¹¦ÄÜËµÃ÷: ¸Ä±äÊä³öĞÅºÅ·ù¶ÈÖµ
-*	ĞÎ    ²Î: 1.amp £º·ù¶ÈÖµ  0- 255
-*	·µ »Ø Öµ: ÎŞ
-*********************************************************************************************************
-*/ 
-
-
-void AD9833_AmpSet(unsigned char amp)
-{
-	unsigned char i;
-	unsigned int temp;
-   	
-	CS_0();
-	temp =0x1100|amp;
-	for(i=0;i<16;i++)
-	{
-	    SCK_0();	
-	   if(temp&0x8000)
-	   	DAT_1();
-	   else
-		DAT_0();
-		temp<<=1;
-	    SCK_1();
-	    AD9833_Delay();
-	}
-	
-   	CS_1();
-}
-
-
-/*
-*********************************************************************************************************
-*	º¯ Êı Ãû: AD9833_WaveSeting
-*	¹¦ÄÜËµÃ÷: ÏòSPI×ÜÏß·¢ËÍ16¸öbitÊı¾İ
-*	ĞÎ    ²Î: 1.Freq: ÆµÂÊÖµ, 0.1 hz - 12Mhz
-			  2.Freq_SFR: 0 »ò 1
-			  3.WaveMode: TRI_WAVE(Èı½Ç²¨),SIN_WAVE(ÕıÏÒ²¨),SQU_WAVE(·½²¨)
-			  4.Phase : ²¨ĞÎµÄ³õÏàÎ»
-*	·µ »Ø Öµ: ÎŞ
-*********************************************************************************************************
-*/ 
-void AD9833_WaveSeting(double Freq,unsigned int Freq_SFR,unsigned int WaveMode,unsigned int Phase )
-{
-
-		int frequence_LSB,frequence_MSB,Phs_data;
-		double   frequence_mid,frequence_DATA;
-		long int frequence_hex;
-
-		/*********************************¼ÆËãÆµÂÊµÄ16½øÖÆÖµ***********************************/
-		frequence_mid=268435456/25;//ÊÊºÏ25M¾§Õñ
-		//Èç¹ûÊ±ÖÓÆµÂÊ²»Îª25MHZ£¬ĞŞ¸Ä¸Ã´¦µÄÆµÂÊÖµ£¬µ¥Î»MHz £¬AD9833×î´óÖ§³Ö25MHz
-		frequence_DATA=Freq;
-		frequence_DATA=frequence_DATA/1000000;
-		frequence_DATA=frequence_DATA*frequence_mid;
-		frequence_hex=frequence_DATA;  //Õâ¸öfrequence_hexµÄÖµÊÇ32Î»µÄÒ»¸öºÜ´óµÄÊı×Ö£¬ĞèÒª²ğ·Ö³ÉÁ½¸ö14Î»½øĞĞ´¦Àí£»
-		frequence_LSB=frequence_hex; //frequence_hexµÍ16Î»ËÍ¸øfrequence_LSB
-		frequence_LSB=frequence_LSB&0x3fff;//È¥³ı×î¸ßÁ½Î»£¬16Î»Êı»»È¥µô¸ßÎ»ºó±ä³ÉÁË14Î»
-		frequence_MSB=frequence_hex>>14; //frequence_hex¸ß16Î»ËÍ¸øfrequence_HSB
-		frequence_MSB=frequence_MSB&0x3fff;//È¥³ı×î¸ßÁ½Î»£¬16Î»Êı»»È¥µô¸ßÎ»ºó±ä³ÉÁË14Î»
-
-		Phs_data=Phase|0xC000;	//ÏàÎ»Öµ
-		AD9833_Write(0x0100); //¸´Î»AD9833,¼´RESETÎ»Îª1
-		AD9833_Write(0x2100); //Ñ¡ÔñÊı¾İÒ»´ÎĞ´Èë£¬B28Î»ºÍRESETÎ»Îª1
-
-		if(Freq_SFR==0)				  //°ÑÊı¾İÉèÖÃµ½ÉèÖÃÆµÂÊ¼Ä´æÆ÷0
-		{
-		 	frequence_LSB=frequence_LSB|0x4000;
-		 	frequence_MSB=frequence_MSB|0x4000;
-			 //Ê¹ÓÃÆµÂÊ¼Ä´æÆ÷0Êä³ö²¨ĞÎ
-			AD9833_Write(frequence_LSB); //L14£¬Ñ¡ÔñÆµÂÊ¼Ä´æÆ÷0µÄµÍ14Î»Êı¾İÊäÈë
-			AD9833_Write(frequence_MSB); //H14 ÆµÂÊ¼Ä´æÆ÷µÄ¸ß14Î»Êı¾İÊäÈë
-			AD9833_Write(Phs_data);	//ÉèÖÃÏàÎ»
-			//AD9833_Write(0x2000); /**ÉèÖÃFSELECTÎ»Îª0£¬Ğ¾Æ¬½øÈë¹¤×÷×´Ì¬,ÆµÂÊ¼Ä´æÆ÷0Êä³ö²¨ĞÎ**/
-	    }
-		if(Freq_SFR==1)				//°ÑÊı¾İÉèÖÃµ½ÉèÖÃÆµÂÊ¼Ä´æÆ÷1
-		{
-			 frequence_LSB=frequence_LSB|0x8000;
-			 frequence_MSB=frequence_MSB|0x8000;
-			//Ê¹ÓÃÆµÂÊ¼Ä´æÆ÷1Êä³ö²¨ĞÎ
-			AD9833_Write(frequence_LSB); //L14£¬Ñ¡ÔñÆµÂÊ¼Ä´æÆ÷1µÄµÍ14Î»ÊäÈë
-			AD9833_Write(frequence_MSB); //H14 ÆµÂÊ¼Ä´æÆ÷1Îª
-			AD9833_Write(Phs_data);	//ÉèÖÃÏàÎ»
-			//AD9833_Write(0x2800); /**ÉèÖÃFSELECTÎ»Îª0£¬ÉèÖÃFSELECTÎ»Îª1£¬¼´Ê¹ÓÃÆµÂÊ¼Ä´æÆ÷1µÄÖµ£¬Ğ¾Æ¬½øÈë¹¤×÷×´Ì¬,ÆµÂÊ¼Ä´æÆ÷1Êä³ö²¨ĞÎ**/
+		frequence_LSB=frequence_LSB+0x4000;
+		frequence_MSB=frequence_MSB+0x4000;
+		//ä½¿ç”¨é¢‘ç‡å¯„å­˜å™¨0è¾“å‡ºæ³¢å½¢
 		}
+	if(Freq_SFR==1)				//æŠŠæ•°æ®è®¾ç½®åˆ°è®¾ç½®é¢‘ç‡å¯„å­˜å™¨1
+	{	
+		 frequence_LSB=frequence_LSB+0x8000;
+		 frequence_MSB=frequence_MSB+0x8000;
+	}
+		AD9833_Write(0x2000); //é€‰æ‹©æ•°æ®ä¸€æ¬¡å†™å…¥ï¼ŒB28ä½ä¸º1,D13
+		AD9833_Write(frequence_LSB); //L14ï¼Œé€‰æ‹©é¢‘ç‡å¯„å­˜å™¨1çš„ä½14ä½è¾“å…¥D15+D14
+		AD9833_Write(frequence_MSB); //H14 é¢‘ç‡å¯„å­˜å™¨1ä¸ºé«˜14ä½è¾“å…¥
 
-		if(WaveMode==TRI_WAVE) //Êä³öÈı½Ç²¨²¨ĞÎ
-		 	AD9833_Write(0x2002); 
-		if(WaveMode==SQU_WAVE)	//Êä³ö·½²¨²¨ĞÎ
-			AD9833_Write(0x2028); 
-		if(WaveMode==SIN_WAVE)	//Êä³öÕıÏÒ²¨ĞÎ
-			AD9833_Write(0x2000); 
+	}
+/**************************************
+*   å‡½ æ•° å: AD9833_SetPhase
+*   åŠŸèƒ½è¯´æ˜: ad9833è®¾ç½®ç›¸ä½å¯„å­˜å™¨
+*   å½¢    å‚: Phase_SFR:å¾…å†™å…¥çš„ç›¸ä½å¯„å­˜å™¨   
+             Phaseï¼šç›¸ä½å€¼
+*   è¿” å› å€¼: æ— 
+*************************************/
+void AD9833_SetPhase(uint16_t Phase_SFR,uint16_t Phase)
+{
+	uint16_t Phaser;
+	uint16_t PhaseLSB;
+	PhaseLSB=(uint16_t)(Phase/360*4096);//é™¤ä»¥360Â°ï¼›12ä½
+	PhaseLSB=PhaseLSB&0x0FFF;//12ä½
+	if(Phase_SFR==0)				  //æŠŠæ•°æ®è®¾ç½®åˆ°è®¾ç½®ç›¸ä½å¯„å­˜å™¨0
+		{
+			Phaser=0xC000; //é€‰æ‹©æ•°æ®ä¸€æ¬¡å†™å…¥ï¼ŒD15+D14+D130,
 
+	    }
+		if(Phase_SFR==1)				//æŠŠæ•°æ®è®¾ç½®åˆ°è®¾ç½®ç›¸ä½å¯„å­˜å™¨1
+		{	
+			Phaser=0xD000; //é€‰æ‹©æ•°æ®ä¸€æ¬¡å†™å…¥ï¼ŒD15+D14+D131ï¼Œ
+    }
+		PhaseLSB=Phaser+PhaseLSB;
+		AD9833_Write(PhaseLSB);
+}
+//å¤ä½
+void AD9833_RESET(void)
+{
+	AD9833_Write(0x0100);
+}
+/**************************************
+*   å‡½ æ•° å: AD9833_SetWave
+*   åŠŸèƒ½è¯´æ˜: ad9833è®¾ç½®è¾“å‡ºæ³¢å½¢
+*   å½¢    å‚: WaveModeï¼šè¾“å‡ºæ³¢å½¢ç±»å‹ 
+              Freq_SFRï¼šè¾“å‡ºçš„é¢‘ç‡å¯„å­˜å™¨ç±»å‹
+              Phase_SFRï¼šè¾“å‡ºçš„ç›¸ä½å¯„å­˜å™¨ç±»å‹
+*   è®¾ç½®VOUT,é€‰æ‹©é¢‘ç‡å¯„å­˜å™¨å’Œç›¸ä½å¯„å­˜å™¨ï¼Œéœ€è¦ä¸åˆå§‹åŒ–è®¾ç½®ä¸€ç½®
+*************************************/
+void AD9833_SetWave(uint16_t WaveMode,uint16_t Freq_SFR,uint16_t Phase_SFR)
+	{
+			uint16_t Wave = 0;
+			uint16_t WaveOut;
+			if(WaveMode==0)				  //ä¸‰è§’æ³¢
+			{
+			 Wave=TRI_WAVE;//D15-D8=0;D7=0,D6=0,D5=0,D4=0,D3=X,D2=0,D1=1,D0=0ï¼ŒD13=1ï¼›
+			if(WaveMode==1)				//æ­£å¼¦æ³¢
+			{
+				Wave=SIN_WAVE;//D15-D8=0;D7=0,D6=0,D5=0,D4=0,D3=X,D2=0,D1=0,D0=0ï¼ŒD13=1
+			}
+			//Freq_SFR:D11=0-0,1-1;Phase_SFR:0-0,1-1;D11=0,D10=0
+			//D15-D14:D13-D12å¯éšæ„è®¾ç½®ï¼Œä¸€èˆ¬è®¾ç½®D13=1ï¼›
+			//D9=0ï¼ŒD8=0ï¼›
+			WaveOut = ( Wave+ Freq_SFR+Phase_SFR);
+//			delay_ms(1000);
+//			delay_ms(1000);
+			AD9833_Write(WaveOut);
+//			AD9833_Write(0x00C0);
+		}
+	}
+	
+/**************************************
+*   å‡½ æ•° å: AD9833_Setup
+*   åŠŸèƒ½è¯´æ˜: ad9833è®¾ç½®è¾“å‡º
+*   å½¢    å‚: Freq_SFRï¼šé¢‘ç‡å¯„å­˜å™¨ç±»å‹
+              Freq    ï¼šé¢‘ç‡å€¼
+              Phase_SFRï¼šç›¸ä½å¯„å­˜å™¨ç±»å‹
+              Phaseï¼šç›¸ä½å€¼
+              WaveModeï¼šæ³¢å½¢ç±»å‹
+*   è¿” å› å€¼: æ— 
+*************************************/
+void AD9833_Setup(uint16_t  Freq_SFR,double Freq,uint16_t Phase_SFR,uint16_t Phase,uint16_t WaveMode)
+{
+    uint16_t Fsel,Psel;
+    AD9833_RESET(); //å¤ä½AD9833
+    AD9833_SetFrequency(Freq_SFR,Freq);//é€‰æ‹©é¢‘ç‡å¯„å­˜å™¨,å¹¶è¾“å…¥é¢‘ç‡
+    AD9833_SetPhase(Phase_SFR,Phase);//é€‰æ‹©ç›¸ä½å¯„å­˜å™¨ï¼Œå¹¶è¾“å…¥ç›¸ä½
+		if(Freq_SFR==0)				  //ä»é¢‘ç‡å¯„å­˜å™¨0è¯»å–æ•°æ®,D11=0
+		{
+			Fsel=0x0000;
+
+			}
+		if(Freq_SFR==1)				//ä»é¢‘ç‡å¯„å­˜å™¨1è¯»å–æ•°æ®,D11=1;
+		{	
+			Fsel=0x0800;
+		}
+		if(Phase_SFR==0)				  //ä»é¢‘ç‡å¯„å­˜å™¨0è¯»å–æ•°æ®,D10=0
+		{
+			Psel=0x0000;
+
+			}
+		if(Phase_SFR==1)				//ä»é¢‘ç‡å¯„å­˜å™¨1è¯»å–æ•°æ®,D10=1;
+		{	
+			Psel=0x0400;
+		}
+    
+    AD9833_SetWave(WaveMode,Fsel,Psel);
+		
 }
 
+/**************************************
+*   å‡½ æ•° å: AD9833_Square_Wave
+*   åŠŸèƒ½è¯´æ˜: ad9833è®¾ç½®è¾“å‡ºæ–¹æ³¢
 
+*   è¿” å› å€¼: æ— 
+*************************************/
+void AD9833_Square_Wave(uint16_t  Freq_SFR,double Freq,uint16_t Phase_SFR,uint16_t Phase)                   
+{
+    AD9833_RESET();
+    AD9833_Write(0x2100); // åˆå§‹åŒ–è®¾ç½®ï¼Œå¦‚æœæ˜¯ä¸ºäº†é‡ç½®è®¾å¤‡ï¼Œä¹‹åéœ€è¦æ¸…é™¤RESETä½
+    // é…ç½®é¢‘ç‡å’Œç›¸ä½ï¼ˆçœ‹èµ·æ¥ä½ çš„è®¾ç½®æ˜¯æ­£ç¡®çš„ï¼‰
+    AD9833_SetFrequency(Freq_SFR,Freq);
+    AD9833_SetPhase(Phase_SFR,Phase);
+    // è®¾ç½®ä¸ºæ–¹æ³¢è¾“å‡ºï¼Œç¡®ä¿RESETä½è¢«æ¸…é™¤ï¼ˆD13ä¸º0ï¼‰ï¼Œå¹¶æ­£ç¡®è®¾ç½®D5å’ŒD1
+    AD9833_Write(0x2028); // è¿™é‡Œå‡è®¾0x2028æ˜¯æ­£ç¡®è®¾ç½®æ–¹æ³¢çš„æ§åˆ¶å­—
+}
 
+/**************************************
+*   å‡½ æ•° å: AD9833_Square_Wave
+*   åŠŸèƒ½è¯´æ˜: ad9833è®¾ç½®è¾“å‡ºæ–¹æ³¢
+
+*   è¿” å› å€¼: æ— 
+*************************************/
+void AD9833_None_Wave(uint16_t  Freq_SFR,double Freq,uint16_t Phase_SFR,uint16_t Phase)                   
+{
+    AD9833_RESET();
+    AD9833_Write(0x2100); // åˆå§‹åŒ–è®¾ç½®ï¼Œå¦‚æœæ˜¯ä¸ºäº†é‡ç½®è®¾å¤‡ï¼Œä¹‹åéœ€è¦æ¸…é™¤RESETä½
+    // é…ç½®é¢‘ç‡å’Œç›¸ä½ï¼ˆçœ‹èµ·æ¥ä½ çš„è®¾ç½®æ˜¯æ­£ç¡®çš„ï¼‰
+    AD9833_SetFrequency(Freq_SFR,Freq);
+    AD9833_SetPhase(Phase_SFR,Phase);
+    // è®¾ç½®ä¸ºæ–¹æ³¢è¾“å‡ºï¼Œç¡®ä¿RESETä½è¢«æ¸…é™¤ï¼ˆD13ä¸º0ï¼‰ï¼Œå¹¶æ­£ç¡®è®¾ç½®D5å’ŒD1
+    AD9833_Write(0x20C0); // è¿™é‡Œå‡è®¾0x2028æ˜¯æ­£ç¡®è®¾ç½®æ–¹æ³¢çš„æ§åˆ¶å­—
+}
 

@@ -1,6 +1,6 @@
 Dependencies for Project 'DSP_FFT', Target 'DSP_FFT': (DO NOT MODIFY !)
 CompilerVersion: 5060750::V5.06 update 6 (build 750)::ARMCC
-F (.\main.c)(0x66A7C1D2)(-c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\HARDWARE\LED -I ..\HARDWARE\LCD -I ..\FWLIB\inc -I ..\HARDWARE\KEY -I ..\HARDWARE\TIMER -I ..\DSP_LIB -I ..\DSP_LIB\Include -I ..\HARDWARE\ADC -I ..\HARDWARE\DAC -I ..\HARDWARE\AD9833-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-IE:\keil\ARM\CMSIS\Include-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Device\Include-D__UVISION_VERSION="531" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDINGSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
+F (.\main.c)(0x66A89C25)(-c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\HARDWARE\LED -I ..\HARDWARE\LCD -I ..\FWLIB\inc -I ..\HARDWARE\KEY -I ..\HARDWARE\TIMER -I ..\DSP_LIB -I ..\DSP_LIB\Include -I ..\HARDWARE\ADC -I ..\HARDWARE\DAC -I ..\HARDWARE\AD9833-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-IE:\keil\ARM\CMSIS\Include-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Device\Include-D__UVISION_VERSION="531" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDINGSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\main.o --omf_browse ..\obj\main.crf --depend ..\obj\main.d)
 I (..\SYSTEM\sys\sys.h)(0x669D2784)
 I (..\USER\stm32f4xx.h)(0x669D2784)
 I (..\CORE\core_cm4.h)(0x669D2783)
@@ -50,6 +50,8 @@ I (..\DSP_LIB\Include\core_cm4.h)(0x669D2783)
 I (E:\keil\ARM\ARMCC\include\string.h)(0x5EC77604)
 I (..\HARDWARE\ADC\adc.h)(0x669D2784)
 I (..\HARDWARE\DAC\dac.h)(0x669D2784)
+I (E:\keil\ARM\ARMCC\include\stdbool.h)(0x5EC775F6)
+I (..\HARDWARE\AD9833\AD9833.h)(0x66A89030)
 F (.\stm32f4xx_it.c)(0x669D2784)(-c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\HARDWARE\LED -I ..\HARDWARE\LCD -I ..\FWLIB\inc -I ..\HARDWARE\KEY -I ..\HARDWARE\TIMER -I ..\DSP_LIB -I ..\DSP_LIB\Include -I ..\HARDWARE\ADC -I ..\HARDWARE\DAC -I ..\HARDWARE\AD9833-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-IE:\keil\ARM\CMSIS\Include-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Device\Include-D__UVISION_VERSION="531" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDINGSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\stm32f4xx_it.o --omf_browse ..\obj\stm32f4xx_it.crf --depend ..\obj\stm32f4xx_it.d)
 I (stm32f4xx_it.h)(0x669D2784)
 I (stm32f4xx.h)(0x669D2784)
@@ -202,7 +204,7 @@ I (..\HARDWARE\LCD\font.h)(0x669D2784)
 I (..\SYSTEM\usart\usart.h)(0x669D2784)
 I (E:\keil\ARM\ARMCC\include\stdio.h)(0x5EC775FC)
 I (..\SYSTEM\delay\delay.h)(0x669D2784)
-F (..\HARDWARE\KEY\key.c)(0x66A7C095)(-c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\HARDWARE\LED -I ..\HARDWARE\LCD -I ..\FWLIB\inc -I ..\HARDWARE\KEY -I ..\HARDWARE\TIMER -I ..\DSP_LIB -I ..\DSP_LIB\Include -I ..\HARDWARE\ADC -I ..\HARDWARE\DAC -I ..\HARDWARE\AD9833-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-IE:\keil\ARM\CMSIS\Include-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Device\Include-D__UVISION_VERSION="531" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDINGSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\key.o --omf_browse ..\obj\key.crf --depend ..\obj\key.d)
+F (..\HARDWARE\KEY\key.c)(0x66A7E8AF)(-c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\HARDWARE\LED -I ..\HARDWARE\LCD -I ..\FWLIB\inc -I ..\HARDWARE\KEY -I ..\HARDWARE\TIMER -I ..\DSP_LIB -I ..\DSP_LIB\Include -I ..\HARDWARE\ADC -I ..\HARDWARE\DAC -I ..\HARDWARE\AD9833-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-IE:\keil\ARM\CMSIS\Include-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Device\Include-D__UVISION_VERSION="531" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDINGSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\key.o --omf_browse ..\obj\key.crf --depend ..\obj\key.d)
 I (..\HARDWARE\KEY\key.h)(0x669D2784)
 I (..\SYSTEM\sys\sys.h)(0x669D2784)
 I (..\USER\stm32f4xx.h)(0x669D2784)
@@ -354,8 +356,9 @@ I (..\FWLIB\inc\stm32f4xx_dac.h)(0x669D2784)
 I (..\FWLIB\inc\stm32f4xx_dcmi.h)(0x669D2784)
 I (..\FWLIB\inc\stm32f4xx_fsmc.h)(0x669D2784)
 I (..\SYSTEM\delay\delay.h)(0x669D2784)
-F (..\HARDWARE\AD9833\AD9833.c)(0x66A7D30C)(-c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\HARDWARE\LED -I ..\HARDWARE\LCD -I ..\FWLIB\inc -I ..\HARDWARE\KEY -I ..\HARDWARE\TIMER -I ..\DSP_LIB -I ..\DSP_LIB\Include -I ..\HARDWARE\ADC -I ..\HARDWARE\DAC -I ..\HARDWARE\AD9833-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-IE:\keil\ARM\CMSIS\Include-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Device\Include-D__UVISION_VERSION="531" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDINGSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\ad9833.o --omf_browse ..\obj\ad9833.crf --depend ..\obj\ad9833.d)
-I (..\HARDWARE\AD9833\ad9833.h)(0x66A7D249)
+F (..\HARDWARE\AD9833\AD9833.c)(0x66A89030)(-c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\HARDWARE\LED -I ..\HARDWARE\LCD -I ..\FWLIB\inc -I ..\HARDWARE\KEY -I ..\HARDWARE\TIMER -I ..\DSP_LIB -I ..\DSP_LIB\Include -I ..\HARDWARE\ADC -I ..\HARDWARE\DAC -I ..\HARDWARE\AD9833-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-IE:\keil\ARM\CMSIS\Include-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Device\Include-D__UVISION_VERSION="531" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDINGSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\ad9833.o --omf_browse ..\obj\ad9833.crf --depend ..\obj\ad9833.d)
+I (..\HARDWARE\AD9833\AD9833.h)(0x66A89030)
+I (..\SYSTEM\sys\sys.h)(0x669D2784)
 I (..\USER\stm32f4xx.h)(0x669D2784)
 I (..\CORE\core_cm4.h)(0x669D2783)
 I (E:\keil\ARM\ARMCC\include\stdint.h)(0x5EC775FC)
@@ -390,7 +393,8 @@ I (..\FWLIB\inc\stm32f4xx_can.h)(0x669D2784)
 I (..\FWLIB\inc\stm32f4xx_dac.h)(0x669D2784)
 I (..\FWLIB\inc\stm32f4xx_dcmi.h)(0x669D2784)
 I (..\FWLIB\inc\stm32f4xx_fsmc.h)(0x669D2784)
-F (..\HARDWARE\AD9833\AD9833.h)(0x66A7D249)()
+I (..\SYSTEM\delay\delay.h)(0x669D2784)
+F (..\HARDWARE\AD9833\AD9833.h)(0x66A89030)()
 F (..\SYSTEM\delay\delay.c)(0x669D2784)(-c --cpu Cortex-M4.fp.sp -g -O0 --apcs=interwork -I ..\CORE -I ..\SYSTEM\delay -I ..\SYSTEM\sys -I ..\SYSTEM\usart -I ..\USER -I ..\HARDWARE\LED -I ..\HARDWARE\LCD -I ..\FWLIB\inc -I ..\HARDWARE\KEY -I ..\HARDWARE\TIMER -I ..\DSP_LIB -I ..\DSP_LIB\Include -I ..\HARDWARE\ADC -I ..\HARDWARE\DAC -I ..\HARDWARE\AD9833-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include-IE:\keil\ARM\CMSIS\Include-IE:\keil\ARM\PACK\Keil\STM32F4xx_DFP\2.15.0\Device\Include-D__UVISION_VERSION="531" -DSTM32F407xx -DSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDINGSTM32F40_41xxx -DUSE_STDPERIPH_DRIVER-o ..\obj\delay.o --omf_browse ..\obj\delay.crf --depend ..\obj\delay.d)
 I (..\SYSTEM\delay\delay.h)(0x669D2784)
 I (..\SYSTEM\sys\sys.h)(0x669D2784)
