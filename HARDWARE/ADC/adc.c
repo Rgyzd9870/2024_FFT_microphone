@@ -38,6 +38,7 @@ void  Adc_Init(void)
   ADC_CommonInitStructure.ADC_TwoSamplingDelay = ADC_TwoSamplingDelay_5Cycles;//两个采样阶段之间的延迟5个时钟
   ADC_CommonInitStructure.ADC_DMAAccessMode = ADC_DMAAccessMode_Disabled; //DMA失能
   ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div8;//预分频4分频。ADCCLK=PCLK2/4=84/4=21Mhz,ADC时钟最好不要超过36Mhz 预分频8分频的话就是10.5MHz
+//  ADC_CommonInitStructure.ADC_Prescaler = ADC_Prescaler_Div4;//预分频4分频。ADCCLK=PCLK2/4=84/4=21Mhz,ADC时钟最好不要超过36Mhz 预分频8分频的话就是10.5MHz
   ADC_CommonInit(&ADC_CommonInitStructure);//初始化
 	
   ADC_InitStructure.ADC_Resolution = ADC_Resolution_12b;//12位模式
@@ -61,11 +62,11 @@ u16 Get_Adc(u8 ch)
 	  	//设置指定ADC的规则组通道，一个序列，采样时间
 	ADC_RegularChannelConfig(ADC1, ch, 1, ADC_SampleTime_480Cycles );	//ADC1,ADC通道,480个周期,提高采样时间可以提高精确度			    
   
-	ADC_SoftwareStartConv(ADC1);		//使能指定的ADC1的软件转换启动功能	
+	ADC_SoftwareStartConv(ADC1);		                                //使能指定的ADC1的软件转换启动功能	
 	 
-	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC ));//等待转换结束
+	while(!ADC_GetFlagStatus(ADC1, ADC_FLAG_EOC ));                     //等待转换结束
 
-	return ADC_GetConversionValue(ADC1);	//返回最近一次ADC1规则组的转换结果
+	return ADC_GetConversionValue(ADC1);	                            //返回最近一次ADC1规则组的转换结果
 }
 //获取通道ch的转换值，取times次,然后平均 
 //ch:通道编号

@@ -53,8 +53,12 @@ void AD9833_RESET(void);
 void AD9833_SetWave(uint16_t WaveMode,uint16_t Freq_SFR,uint16_t Phase_SFR);
 void AD9833_Setup(uint16_t  Freq_SFR,double Freq,uint16_t Phase_SFR,uint16_t Phase,uint16_t WaveMode);
 void AD9833_Square_Wave(uint16_t  Freq_SFR,double Freq,uint16_t Phase_SFR,uint16_t Phase);
+void AD9833_None_Wave(uint16_t  Freq_SFR,double Freq,uint16_t Phase_SFR,uint16_t Phase);
 #endif
 
+
+//AD9833_Square_Wave(0,18500,0,0); //2:频率 4：相位  //220000kz
+//AD9833_Square_Wave(0,22500,0,0); //2:频率 4：相位 //250000kz
 
 
 

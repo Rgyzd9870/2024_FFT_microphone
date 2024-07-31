@@ -12,9 +12,10 @@
 #include "stdbool.h"
 #include "AD9833.h"
 
-#define xiangweizhi 0               //注释锁
-#define test1       1               //任务一锁
-#define meun        1               //波形里的菜单
+#define xiangweizhi          0               //注释锁
+#define test1                1               //任务一锁
+#define meun                 1               //波形里的菜单
+#define FFT_varResult        1               //环形缓冲区去10个数求方差
 
 #define FFT_LENGTH		1024 		//FFT长度，默认是1024点FFT
 #define RESOLUTION 2048
@@ -30,6 +31,21 @@ const u32  fft_sample_freq=84000000/(65535*84);  //fft采样频率 为信号的3到6倍   
 float freamp[50];//获取各次谐波频率和幅?   
 float zhiliu1,HZ1,amp1,phase1;    
 #endif
+    
+#if FFT_varResult   //环形缓冲区去10个数求方差
+
+    #define BUFFER_SIZE 10 // 环形缓冲区的大小 
+    int buffer[BUFFER_SIZE];
+    int head = 0; // 缓冲区的开始
+    int tail = 0; // 缓冲区的结束
+    u32 i;
+    float32_t varResult; // 用于存储方差计算结果
+    float32_t Freq_buffer[BUFFER_SIZE];
+    void addElement(u32 Freq);
+    void printBuffer(void);
+#endif
+    
+
 void clear_point(u16 num);//更新显示屏当前列	
 void Set_BackGround(void);//设置背景
 void Lcd_DrawNetwork(void);//画网格
@@ -48,10 +64,12 @@ int main(void)
   arm_cfft_radix4_instance_f32 scfft;
  	u8 key,t;
     static bool isAudioDetectionMode = true;
+    static bool  blockFunction = true;
 	float Adresult = 0;
 	u32 freq,arg;
+    static u32 freq_flag;
     u8 arg_buff[20]={0};
-	u16 i; 
+	u16 i,DetectionMode; 
 	u8 Vpp_buff[20] = {0};
 	u8 Freq_buff[20]={0};
     u8 show[20]={0};
@@ -86,29 +104,30 @@ int main(void)
 			if(key==WKUP_PRES)
 			{
                 oscilloscopeLevel++;
-                AD9833_Square_Wave(0,10000,0,0); //2:频率 4：相位
+                AD9833_Setup(0,22000.0,0,50,1);   //?(正弦)
                 sprintf((char*)show,"PowerOutput%d",oscilloscopeLevel);	
                 LCD_ShowString(320,10,210,24,24,show);
             }
             else if(key==KEY1_PRES)
             {
                 oscilloscopeLevel--;
-                AD9833_Setup(0,50000.0,0,50,1);
+                AD9833_Square_Wave(0,22500,0,0); //2:频率 4：相位 //250000kz
                 sprintf((char*)show,"PowerOutput%d",oscilloscopeLevel);	
                 LCD_ShowString(320,10,210,24,24,show);
             }
             
             
-			if(key == KEY0_PRES)
+			if(key == KEY0_PRES)  //进入画图
 			{	
+                
                 while(1)
                 {
                    #if meun
-               key=KEY_Scan(1); 
+               key=KEY_Scan(0); 
             if(key==WKUP_PRES)
 			{
                 oscilloscopeLevel++;
-                AD9833_Square_Wave(0,10000,0,0); //2:频率 4：相位
+                AD9833_Square_Wave(0,19500,0,0); //2:频率 4：相位  //？
                 sprintf((char*)show,"PowerOutput%d",oscilloscopeLevel);	
                 LCD_ShowString(320,10,210,24,24,show);
                 
@@ -116,7 +135,7 @@ int main(void)
             else if(key==KEY1_PRES)
             {
                 oscilloscopeLevel--;
-                AD9833_Setup(0,50000.0,0,50,1);
+                AD9833_Setup(0,22500.0,0,50,1);   //？
                 sprintf((char*)show,"PowerOutput%d",oscilloscopeLevel);	
                 LCD_ShowString(320,10,210,24,24,show);
             }
@@ -129,23 +148,26 @@ int main(void)
                 // 切换到音频信号检测模式 
                 sprintf((char*)show,"DetectionMode:1");	
                 LCD_ShowString(300,250,210,24,24,show);
+                
+                DetectionMode =0;
            } else 
             {
                 // 切换到人声检测模式
                 sprintf((char*)show,"DetectionMode:0");	
                 LCD_ShowString(300,250,210,24,24,show);
+                
+                DetectionMode =1;
             }
                
            }
-                   #endif
+           #endif
 
 
                     
                 
 			Collect_ADC_LEVEL(fft_inputbuf);
-			//if(show_flag==1)
-			DrawOscillogram(fft_inputbuf);//画波形
-			Adresult = get_vpp(fft_inputbuf);//峰峰值mv
+			DrawOscillogram(fft_inputbuf);              //画波形
+			Adresult = get_vpp(fft_inputbuf);           //峰峰值mv
 			Add_Kwindow(fft_inputbuf);
 			arm_cfft_radix4_f32(&scfft,fft_inputbuf);	//FFT计算（基4）
 			arm_cmplx_mag_f32(fft_inputbuf,fft_outputbuf,FFT_LENGTH);	//把运算结果复数求模得幅值 
@@ -155,8 +177,8 @@ int main(void)
 				printf("output:%.2f,%.2f\n",fft_inputbuf[2*i],fft_outputbuf[i]);
 			} 
             #endif
-			freq=get_freq(fft_outputbuf);
-            #if xiangweizhi //测试别项相位值（2）
+			freq=get_freq(fft_outputbuf);               //求频率
+            #if xiangweizhi                             //测试别项相位值（2）
             freamplen=fft_getpeak(fft_inputbuf,fft_outputbuf+1,freamp,FFT_LENGTH/2,10,5,0.2);//寻找基波和谐波
             zhiliu1=fft_outputbuf[0]/FFT_LENGTH;//直流 
             HZ1=freamp[0];//频率
@@ -168,7 +190,15 @@ int main(void)
 //            printf("amp1:%.2f\r\n",amp1);
             printf("phase1:%.2f\r\n",phase1);
             #endif
+            
             arg = get_arg(fft_outputbuf,fft_inputbuf);
+        #if FFT_varResult                           //测试接收人声频率方差
+            addElement(freq);
+            printBuffer();                              // 每次添加后打印缓冲区状态
+            sprintf((char*)Freq_buff,"var=%f",varResult);     //全局变量
+			LCD_ShowString(280,100,210,24,24,Freq_buff);
+//            LCD_Fill(280,100,380,130,DARKBLUE);
+      #endif 
 			//if(show_flag!=1)
 			//DrawSpectrum(fft_outputbuf,freq);
 //			Adresult =0.0281682f+2.04374f*Adresult-0.05f+0.00004f*(freq-1000);//曲线拟合结果
@@ -177,10 +207,19 @@ int main(void)
 			sprintf((char*)Freq_buff,"Fs = %dHz",freq);
 			LCD_ShowString(60,10,210,24,24,Freq_buff);
             #if test1                   //任务一
-            if(freq > 100)
+            if((freq > 100))
             {
-
                LED0 = 0;
+                if(DetectionMode == 1)  //人声模式
+                {
+//                    addElement(freq);   //添加环形缓冲区数据
+//                    printBuffer(); // 每次添加后打印缓冲区状态
+                }
+                else                    //音乐模式
+                {
+//                    
+                }
+                
             }
             else LED0 = 1;
             #endif
@@ -196,20 +235,21 @@ int main(void)
                 
         
         
-           else if(key == KEY2_PRES)          //切换音频信号隔断
+           else if(key == KEY2_PRES)          //发出屏蔽信号，信号为250000K.任务一
            {    
-               delay_ms(10);//去抖动
-               while(KEY2_PRES == 1);
-               isAudioDetectionMode = !isAudioDetectionMode; // 切换模式
-            if(isAudioDetectionMode) {
-                // 切换到音频信号检测模式 
-                sprintf((char*)show,"DetectionMode:1");	
+
+               blockFunction = !blockFunction; 
+            if(blockFunction) {
+                
+                sprintf((char*)show,"blockFunction:1");	
                 LCD_ShowString(300,250,210,24,24,show);
-           } else 
+                AD9833_Setup(0,225000.0,0,50,1);   //22.834Khz
+            } else 
             {
-                // 切换到人声检测模式
-                sprintf((char*)show,"DetectionMode:0");	
+                
+                sprintf((char*)show,"blockFunction:0");	
                 LCD_ShowString(300,250,210,24,24,show);
+                AD9833_None_Wave(0,0,0,0);       //关闭检测
             }
                
            }
@@ -343,7 +383,7 @@ float get_vpp(float *buf)	   //获取峰峰值
 		}			
 	} 	
 	Vpp = max_data - min_data;
-	return Vpp;	
+	return (Vpp*2);	
 }
 void rDawSpectrum(float *buf,u32 f)
 {
@@ -385,7 +425,7 @@ u32 get_arg(float *buffx,float *buffy)   //获取相位(能用)
 	u32 n;
 	float max_data=buffx[1];
 	u32 max_arg=1;
-	for(n = 1;n<FFT_LENGTH/2 ;n++)          //峰值
+	for(n = 1;n<FFT_LENGTH/2 ;n++)          //FREQ
 	{
 		if(buffx[n] > max_data)
 		{
@@ -439,5 +479,34 @@ int fft_getpeak(float *inputx,float *input,float *output,u16 inlen,u8 x,u8 N,flo
 		
 	}
 	return outlen;	
+}
+#endif
+
+#if FFT_varResult
+    // 向缓冲区添加元素
+void addElement(u32 Freq)
+{
+    buffer[tail] = Freq;
+    tail = (tail + 1) % BUFFER_SIZE; // 环形移动
+    if (tail == head)  
+    { // 如果缓冲区满了，移动头部指针
+        head = (head + 1) % BUFFER_SIZE;
+    }
+}
+
+// 打印缓冲区内容求取方差
+void printBuffer(void) {
+    int i = head;
+    while (i != tail) {
+        Freq_buffer[i] =buffer[i];
+//        printf("%d ", buffer[i]);
+        i = (i + 1) % BUFFER_SIZE;
+    }
+    printf("recv_end\n");
+
+        arm_var_f32(Freq_buffer,10,&varResult);
+
+        printf("buffer[i]:%f\n",varResult);
+        
 }
 #endif

@@ -237,7 +237,7 @@ void AD9833_Square_Wave(uint16_t  Freq_SFR,double Freq,uint16_t Phase_SFR,uint16
 
 /**************************************
 *   函 数 名: AD9833_Square_Wave
-*   功能说明: ad9833设置输出方波
+*   功能说明: ad9833设置无输出
 
 *   返 回 值: 无
 *************************************/
